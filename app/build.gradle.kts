@@ -42,6 +42,10 @@ android {
 }
 
 dependencies {
+    implementation(projects.feature.search)
+
+    implementation(projects.core.uikit)
+
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3.adaptive)
     implementation(libs.androidx.core.ktx)
