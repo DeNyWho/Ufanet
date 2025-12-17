@@ -28,4 +28,14 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Ufanet"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
+
+include(":domain")
+
+include(":data:local")
+include(":data:network")
+include(":data:source")
+include(":core:uikit")
+include(":feature:search")
+include(":core:common")
