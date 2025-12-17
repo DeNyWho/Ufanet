@@ -9,7 +9,7 @@ import com.example.ufanet.domain.model.common.request.Resource
 class StoriesDataSource(
     private val storiesApiService: StoriesApiService,
 ) {
-    suspend fun stories(): Resource<DefaultResponseDTO<StoriesResponseDTO>> {
-        return safeApiCall { storiesApiService.stories() }
+    suspend fun getStories(): Resource<DefaultResponseDTO<StoriesResponseDTO>> {
+        return safeApiCall { storiesApiService.getStories() }
     }
 }

@@ -7,5 +7,5 @@ import retrofit2.http.GET
 
 interface StoriesApiService {
     @GET("api/v0/stories")
-    suspend fun stories(): Response<DefaultResponseDTO<StoriesResponseDTO>>
+    suspend fun getStories(): Response<DefaultResponseDTO<StoriesResponseDTO>>
 }
