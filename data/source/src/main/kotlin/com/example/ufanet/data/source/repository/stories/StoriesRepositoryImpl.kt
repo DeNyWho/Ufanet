@@ -2,7 +2,7 @@ package com.example.ufanet.data.source.repository.stories
 
 import com.example.ufanet.data.network.datasource.StoriesDataSource
 import com.example.ufanet.data.source.mapper.stories.toStories
-import com.example.ufanet.domain.model.stories.Stories
+import com.example.ufanet.domain.model.story.Story
 import com.example.ufanet.domain.repository.stories.StoriesRepository
 import com.example.ufanet.domain.state.StateListWrapper
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ import kotlinx.collections.immutable.toImmutableList
 internal class StoriesRepositoryImpl @Inject constructor(
     private val storiesDataSource: StoriesDataSource,
 ): StoriesRepository {
-    override fun getStories(): Flow<StateListWrapper<Stories>> {
+    override fun getStories(): Flow<StateListWrapper<Story>> {
         return flow {
             emit(StateListWrapper.loading())
 
