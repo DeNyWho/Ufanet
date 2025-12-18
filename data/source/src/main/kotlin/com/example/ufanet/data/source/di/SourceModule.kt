@@ -1,5 +1,6 @@
 package com.example.ufanet.data.source.di
 
+import com.example.ufanet.data.local.dao.stories.StoryDao
 import com.example.ufanet.data.network.datasource.StoriesDataSource
 import com.example.ufanet.data.source.repository.stories.StoriesRepositoryImpl
 import com.example.ufanet.domain.repository.stories.StoriesRepository
@@ -16,9 +17,11 @@ internal object SourceModule {
     @Provides
     fun provideStoriesRepository(
         storiesDataSource: StoriesDataSource,
+        storyDao: StoryDao,
     ): StoriesRepository {
         return StoriesRepositoryImpl(
             storiesDataSource = storiesDataSource,
+            storyDao = storyDao,
         )
     }
 }

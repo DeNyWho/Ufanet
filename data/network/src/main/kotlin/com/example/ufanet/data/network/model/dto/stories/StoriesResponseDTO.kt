@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StoriesResponseDTO(
     @SerialName("stories")
-    val stories: List<StoriesDTO>,
+    val stories: List<StoryDTO>,
 )

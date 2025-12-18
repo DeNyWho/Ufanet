@@ -4,5 +4,6 @@ data class Story(
     val imageLogo: String = "",
     val newsName: String = "",
     val url: String = "",
+    val uniqueName: String = "",
     val isFavourite: Boolean = false,
 )

@@ -2,6 +2,7 @@ package com.example.ufanet.feature.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ufanet.domain.usecase.stories.ChangeFavouriteStoriesStatusUseCase
 import com.example.ufanet.domain.usecase.stories.GetStoriesUseCase
 import com.example.ufanet.feature.search.model.SearchAction
 import com.example.ufanet.feature.search.model.SearchEvent
@@ -22,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class SearchViewModel @Inject constructor(
     private val getStoriesUseCase: GetStoriesUseCase,
+    private val changeFavouriteStoriesStatusUseCase: ChangeFavouriteStoriesStatusUseCase,
 ): ViewModel() {
     private val _state = MutableStateFlow(SearchState())
     val state: StateFlow<SearchState> = _state.asStateFlow()
@@ -36,9 +38,8 @@ internal class SearchViewModel @Inject constructor(
     fun handleEvent(intent: SearchEvent) {
         when(intent) {
             SearchEvent.LoadInitialData -> loadInitialData()
-            is SearchEvent.OnSearchQueryChanged -> {
-                updateQuery(intent.query)
-            }
+            is SearchEvent.OnSearchQueryChanged -> updateQuery(intent.query)
+            is SearchEvent.OnFavouriteClick -> changeFavourite(intent.uniqueName)
             is SearchEvent.OnSearchCardClick -> {
 
             }
@@ -52,7 +53,7 @@ internal class SearchViewModel @Inject constructor(
     }
 
     private fun loadInitialSearch() {
-        getStoriesUseCase.invoke()
+        getStoriesUseCase.invoke(null)
             .onEach { result ->
                 _state.update {
                     it.copy(
@@ -63,10 +64,31 @@ internal class SearchViewModel @Inject constructor(
     }
 
     private fun updateQuery(query: String) {
-        _state.update {
-            it.copy(
-                query = query,
-            )
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    query = query,
+                )
+            }
+
+            loadSearch(query)
+        }
+    }
+
+    private fun loadSearch(query: String) {
+        getStoriesUseCase.invoke(query)
+            .onEach { result ->
+                _state.update {
+                    it.copy(
+                        stories = result
+                    )
+                }
+            }.launchIn(viewModelScope)
+    }
+
+    private fun changeFavourite(uniqueName: String) {
+        viewModelScope.launch {
+            changeFavouriteStoriesStatusUseCase.invoke(uniqueName)
         }
     }
 }

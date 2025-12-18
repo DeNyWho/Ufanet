@@ -32,6 +32,7 @@ import coil.size.Size
 import com.example.ufanet.core.uikit.theme.Gray4
 import com.example.ufanet.core.uikit.theme.Red
 import com.example.ufanet.core.uikit.util.DefaultPreview
+import com.example.ufanet.core.uikit.util.clickableWithoutRipple
 import com.example.ufanet.domain.model.story.Story
 import com.example.ufanet.feature.search.R
 import com.example.ufanet.feature.search.component.card.param.StoriesCardPreviewParam
@@ -40,6 +41,7 @@ import com.example.ufanet.feature.search.component.card.param.StoriesCardProvide
 @Composable
 internal fun SearchCard(
     story: Story,
+    onFavouriteClick: (String) -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -86,6 +88,9 @@ internal fun SearchCard(
                 )
                 Icon(
                     modifier = Modifier
+                        .clickableWithoutRipple {
+                            onFavouriteClick.invoke(story.uniqueName)
+                        }
                         .size(24.dp)
                         .align(Alignment.CenterVertically),
                     painter = if(story.isFavourite)
@@ -108,6 +113,7 @@ private fun PreviewSearchCard(
     DefaultPreview(false) {
         SearchCard(
             story = param.story,
+            onFavouriteClick = param.onFavouriteClick,
         )
     }
 }

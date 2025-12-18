@@ -2,11 +2,14 @@ package com.example.ufanet.feature.search
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -55,15 +58,15 @@ private fun SearchUI(
 ) {
     Column(
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         UfanetTextField(
             modifier = Modifier
                 .height(54.dp)
                 .fillMaxWidth(),
             query = state.query,
-            onChangeQuery = {
-                eventHandler.invoke(SearchEvent.OnSearchQueryChanged(it))
+            onChangeQuery = { query ->
+                eventHandler.invoke(SearchEvent.OnSearchQueryChanged(query))
             },
             placeHolder = stringResource(R.string.feature_search_text_field_placeholder),
         )
@@ -72,6 +75,7 @@ private fun SearchUI(
             modifier = Modifier.fillMaxSize(),
             columns = GridCells.Fixed(2),
             state = lazyGridState,
+            contentPadding = PaddingValues(top = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
@@ -81,6 +85,9 @@ private fun SearchUI(
             ) { data ->
                 SearchCard(
                     story = data,
+                    onFavouriteClick = { uniqueName ->
+                        eventHandler.invoke(SearchEvent.OnFavouriteClick(uniqueName))
+                    },
                 )
             }
         }
