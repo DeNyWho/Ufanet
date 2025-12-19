@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.withContext
 
 internal class StoriesRepositoryImpl @Inject constructor(
     private val storiesDataSource: StoriesDataSource,
@@ -67,7 +68,7 @@ internal class StoriesRepositoryImpl @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
-    override fun changeFavourite(uniqueName: String) {
+    override suspend fun changeFavourite(uniqueName: String) {
         storyDao.updateFavoriteStatus(uniqueName)
     }
 }

@@ -21,5 +21,5 @@ interface StoryDao {
     fun getAllStories(query: String?): Flow<List<StoryEntity>>
 
     @Query("UPDATE story SET isFavourite = NOT isFavourite WHERE uniqueName = :uniqueName")
-    fun updateFavoriteStatus(uniqueName: String)
+    suspend fun updateFavoriteStatus(uniqueName: String)
 }

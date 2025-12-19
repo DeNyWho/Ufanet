@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface StoriesRepository {
     fun getStories(query: String? = null): Flow<StateListWrapper<Story>>
-    fun changeFavourite(uniqueName: String)
+    suspend fun changeFavourite(uniqueName: String)
 }
