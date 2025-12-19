@@ -31,8 +31,6 @@ internal class StoriesRepositoryImpl @Inject constructor(
 
     override fun getStories(query: String?): Flow<StateListWrapper<Story>> {
         return flow {
-            emit(StateListWrapper.loading())
-
             val cachedStories = storyDao.getAllStories(query).first()
 
             if (cachedStories.isEmpty()) {

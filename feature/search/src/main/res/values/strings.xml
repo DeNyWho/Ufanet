@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feature_search_text_field_placeholder">Поиск</string>
+    <string name="feature_search_empty_message">Ничего не найдено</string>
 </resources>

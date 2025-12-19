@@ -19,6 +19,13 @@ private val RobotoFontFamily = FontFamily(
 
 internal fun ufanetTypography(): Typography {
     return Typography(
+        titleMedium = TextStyle(
+            fontWeight = FontWeight.Normal,
+            fontSize = 24.sp,
+            lineHeight = 1.em,
+            letterSpacing = 0.sp,
+            fontFamily = RobotoFontFamily,
+        ),
         bodyLarge = TextStyle(
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,

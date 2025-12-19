@@ -1,6 +1,7 @@
 package com.example.ufanet.feature.search
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -24,18 +25,24 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ufanet.core.uikit.components.textfield.UfanetTextField
 import com.example.ufanet.core.uikit.theme.MediumEmphasis
 import com.example.ufanet.core.uikit.theme.Primary
+import com.example.ufanet.core.uikit.util.DefaultPreview
 import com.example.ufanet.feature.search.component.card.SearchCard
 import com.example.ufanet.feature.search.model.SearchEvent
 import com.example.ufanet.feature.search.model.SearchState
+import com.example.ufanet.feature.search.param.SearchScreenPreviewParam
+import com.example.ufanet.feature.search.param.SearchScreenProvider
 
 @Composable
 internal fun SearchScreen(
@@ -70,29 +77,54 @@ private fun SearchUI(
             },
             placeHolder = stringResource(R.string.feature_search_text_field_placeholder),
         )
-
-        LazyVerticalGrid(
-            modifier = Modifier.fillMaxSize(),
-            columns = GridCells.Fixed(2),
-            state = lazyGridState,
-            contentPadding = PaddingValues(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            items(
-                state.stories.data,
-                key = { it.url },
-            ) { data ->
-                SearchCard(
-                    story = data,
-                    onFavouriteClick = { uniqueName ->
-                        eventHandler.invoke(SearchEvent.OnFavouriteClick(uniqueName))
-                    },
-                    onCardClick = { url ->
-                        eventHandler.invoke(SearchEvent.OnSearchCardClick(url))
-                    }
+        if(!state.isSearching && state.query.isNotEmpty() && state.stories.data.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = stringResource(R.string.feature_search_empty_message),
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
+        } else {
+            LazyVerticalGrid(
+                modifier = Modifier.fillMaxSize(),
+                columns = GridCells.Fixed(2),
+                state = lazyGridState,
+                contentPadding = PaddingValues(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                items(
+                    state.stories.data,
+                    key = { it.uniqueName },
+                ) { data ->
+                    SearchCard(
+                        story = data,
+                        onFavouriteClick = { uniqueName ->
+                            eventHandler.invoke(SearchEvent.OnFavouriteClick(uniqueName))
+                        },
+                        onCardClick = { url ->
+                            eventHandler.invoke(SearchEvent.OnSearchCardClick(url))
+                        }
+                    )
+                }
+            }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewSearchScreen(
+    @PreviewParameter(SearchScreenProvider::class) param: SearchScreenPreviewParam,
+) {
+    DefaultPreview(true) {
+        SearchUI(
+            state = param.state,
+            eventHandler = param.eventHandler
+        )
     }
 }
