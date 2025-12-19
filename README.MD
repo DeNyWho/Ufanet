@@ -13,6 +13,7 @@
 - Material3
 - Coil
 - Jetpack Navigation
+- Paging
 
 ## Скриншоты
 <table>
