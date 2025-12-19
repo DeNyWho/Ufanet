@@ -88,6 +88,9 @@ private fun SearchUI(
                     onFavouriteClick = { uniqueName ->
                         eventHandler.invoke(SearchEvent.OnFavouriteClick(uniqueName))
                     },
+                    onCardClick = { url ->
+                        eventHandler.invoke(SearchEvent.OnSearchCardClick(url))
+                    }
                 )
             }
         }

@@ -7,6 +7,7 @@ import com.example.ufanet.domain.model.story.Story
 internal data class StoriesCardPreviewParam(
     val story: Story,
     val onFavouriteClick: (String) -> Unit = {},
+    val onCardClick: (String) -> Unit = {},
 )
 
 internal class StoriesCardProvider: PreviewParameterProvider<StoriesCardPreviewParam> {

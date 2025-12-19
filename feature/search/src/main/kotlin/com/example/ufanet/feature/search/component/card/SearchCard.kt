@@ -1,6 +1,7 @@
 package com.example.ufanet.feature.search.component.card
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,9 +43,13 @@ import com.example.ufanet.feature.search.component.card.param.StoriesCardProvide
 internal fun SearchCard(
     story: Story,
     onFavouriteClick: (String) -> Unit,
+    onCardClick: (String) -> Unit,
 ) {
     Card(
         modifier = Modifier
+            .clickable {
+                onCardClick.invoke(story.url)
+            }
             .size(158.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -114,6 +119,7 @@ private fun PreviewSearchCard(
         SearchCard(
             story = param.story,
             onFavouriteClick = param.onFavouriteClick,
+            onCardClick = param.onCardClick,
         )
     }
 }

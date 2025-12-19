@@ -2,6 +2,7 @@ package com.example.ufanet.feature.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ufanet.core.common.util.deeplink.DeepLink
 import com.example.ufanet.domain.usecase.stories.ChangeFavouriteStoriesStatusUseCase
 import com.example.ufanet.domain.usecase.stories.GetStoriesUseCase
 import com.example.ufanet.feature.search.model.SearchAction
@@ -24,6 +25,7 @@ import javax.inject.Inject
 internal class SearchViewModel @Inject constructor(
     private val getStoriesUseCase: GetStoriesUseCase,
     private val changeFavouriteStoriesStatusUseCase: ChangeFavouriteStoriesStatusUseCase,
+    private val deepLink: DeepLink,
 ): ViewModel() {
     private val _state = MutableStateFlow(SearchState())
     val state: StateFlow<SearchState> = _state.asStateFlow()
@@ -40,9 +42,7 @@ internal class SearchViewModel @Inject constructor(
             SearchEvent.LoadInitialData -> loadInitialData()
             is SearchEvent.OnSearchQueryChanged -> updateQuery(intent.query)
             is SearchEvent.OnFavouriteClick -> changeFavourite(intent.uniqueName)
-            is SearchEvent.OnSearchCardClick -> {
-
-            }
+            is SearchEvent.OnSearchCardClick -> openWeb(intent.url)
         }
     }
 
@@ -90,5 +90,9 @@ internal class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             changeFavouriteStoriesStatusUseCase.invoke(uniqueName)
         }
+    }
+
+    private fun openWeb(url: String) {
+        deepLink.openWeb(url)
     }
 }
