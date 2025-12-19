@@ -8,6 +8,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.paging.runtime)
+    implementation(libs.paging.compose)
     testImplementation(libs.hilt.android.testing)
 
     testImplementation(libs.junit)

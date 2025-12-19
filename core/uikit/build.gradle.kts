@@ -23,6 +23,8 @@ dependencies {
     api(libs.androidx.compose.material3)
     api(libs.androidx.compose.runtime)
     api(libs.androidx.compose.ui.util)
+    implementation(libs.paging.runtime)
+    implementation(libs.paging.compose)
 
     api(libs.shimmer.compose)
 

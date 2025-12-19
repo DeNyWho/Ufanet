@@ -34,15 +34,21 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.example.ufanet.core.uikit.components.textfield.UfanetTextField
 import com.example.ufanet.core.uikit.theme.MediumEmphasis
 import com.example.ufanet.core.uikit.theme.Primary
 import com.example.ufanet.core.uikit.util.DefaultPreview
+import com.example.ufanet.core.uikit.util.rememberLazyGridState
+import com.example.ufanet.domain.model.story.Story
 import com.example.ufanet.feature.search.component.card.SearchCard
 import com.example.ufanet.feature.search.model.SearchEvent
 import com.example.ufanet.feature.search.model.SearchState
 import com.example.ufanet.feature.search.param.SearchScreenPreviewParam
 import com.example.ufanet.feature.search.param.SearchScreenProvider
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun SearchScreen(
@@ -54,15 +60,19 @@ internal fun SearchScreen(
     SearchUI(
         state = state,
         eventHandler = viewModel::handleEvent,
+        searchResults = viewModel.searchResults,
     )
 }
 
 @Composable
 private fun SearchUI(
-    lazyGridState: LazyGridState = rememberLazyGridState(),
     state: SearchState,
+    searchResults: Flow<PagingData<Story>>,
     eventHandler: (SearchEvent) -> Unit,
 ) {
+    val items = searchResults.collectAsLazyPagingItems()
+    val gridState = items.rememberLazyGridState()
+
     Column(
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -77,7 +87,7 @@ private fun SearchUI(
             },
             placeHolder = stringResource(R.string.feature_search_text_field_placeholder),
         )
-        if(!state.isSearching && state.query.isNotEmpty() && state.stories.data.isEmpty()) {
+        if(items.loadState.append.endOfPaginationReached && items.itemCount == 0 && !state.isSearching) {
             Box(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -92,24 +102,27 @@ private fun SearchUI(
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),
                 columns = GridCells.Fixed(2),
-                state = lazyGridState,
+                state = gridState,
                 contentPadding = PaddingValues(top = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 items(
-                    state.stories.data,
-                    key = { it.uniqueName },
-                ) { data ->
-                    SearchCard(
-                        story = data,
-                        onFavouriteClick = { uniqueName ->
-                            eventHandler.invoke(SearchEvent.OnFavouriteClick(uniqueName))
-                        },
-                        onCardClick = { url ->
-                            eventHandler.invoke(SearchEvent.OnSearchCardClick(url))
-                        }
-                    )
+                    count = items.itemCount,
+                    key = items.itemKey { it.uniqueName },
+                ) { index ->
+                    val item = items[index]
+                    item?.let {
+                        SearchCard(
+                            story = item,
+                            onFavouriteClick = { uniqueName ->
+                                eventHandler.invoke(SearchEvent.OnFavouriteClick(uniqueName))
+                            },
+                            onCardClick = { url ->
+                                eventHandler.invoke(SearchEvent.OnSearchCardClick(url))
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -124,7 +137,8 @@ private fun PreviewSearchScreen(
     DefaultPreview(true) {
         SearchUI(
             state = param.state,
-            eventHandler = param.eventHandler
+            eventHandler = param.eventHandler,
+            searchResults = param.searchResults,
         )
     }
 }

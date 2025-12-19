@@ -2,7 +2,10 @@ package com.example.ufanet.feature.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.ufanet.core.common.util.deeplink.DeepLink
+import com.example.ufanet.domain.model.story.Story
 import com.example.ufanet.domain.usecase.stories.ChangeFavouriteStoriesStatusUseCase
 import com.example.ufanet.domain.usecase.stories.GetStoriesUseCase
 import com.example.ufanet.feature.search.model.SearchAction
@@ -10,6 +13,7 @@ import com.example.ufanet.feature.search.model.SearchEvent
 import com.example.ufanet.feature.search.model.SearchState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -39,24 +43,30 @@ internal class SearchViewModel @Inject constructor(
     private val _action = MutableSharedFlow<SearchAction>()
     val action: SharedFlow<SearchAction> = _action.asSharedFlow()
 
-    init {
-        _state
-            .map { it.query }
-            .distinctUntilChanged()
-            .debounce(500)
-            .flatMapLatest { queryString ->
-                getStoriesUseCase.invoke(queryString.trim().takeIf { it.isNotEmpty() })
+    val searchResults: Flow<PagingData<Story>> = _state
+        .distinctUntilChanged { old, new -> old.query == new.query }
+        .onEach {
+            _state.update {
+                it.copy(
+                    isSearching = true,
+                )
             }
-            .onEach { stories ->
-                _state.update { current ->
-                    current.copy(
-                        stories = stories,
-                        isSearching = false,
-                    )
-                }
+        }
+        .debounce(500)
+        .flatMapLatest { state ->
+            getStoriesUseCase.invoke(
+                limit = 20,
+                query = state.query,
+            )
+        }
+        .onEach {
+            _state.update {
+                it.copy(
+                    isSearching = false,
+                )
             }
-            .launchIn(viewModelScope)
-    }
+        }
+        .cachedIn(viewModelScope)
 
     fun handleEvent(intent: SearchEvent) {
         when(intent) {

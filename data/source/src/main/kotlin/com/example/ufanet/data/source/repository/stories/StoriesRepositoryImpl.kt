@@ -1,10 +1,16 @@
 package com.example.ufanet.data.source.repository.stories
 
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.example.ufanet.data.local.dao.stories.StoryDao
 import com.example.ufanet.data.network.datasource.StoriesDataSource
 import com.example.ufanet.data.source.mapper.stories.toEntity
 import com.example.ufanet.data.source.mapper.stories.toStories
 import com.example.ufanet.data.source.mapper.stories.toStory
+import com.example.ufanet.data.source.paging.stories.StoriesRemoteMediator
 import com.example.ufanet.domain.model.story.Story
 import com.example.ufanet.domain.repository.stories.StoriesRepository
 import com.example.ufanet.domain.state.StateListWrapper
@@ -29,41 +35,25 @@ internal class StoriesRepositoryImpl @Inject constructor(
     private val storyDao: StoryDao,
 ) : StoriesRepository {
 
-    override fun getStories(query: String?): Flow<StateListWrapper<Story>> {
-        return flow {
-            val cachedStories = storyDao.getAllStories(query).first()
-
-            if (cachedStories.isEmpty()) {
-                when (val result = storiesDataSource.getStories()) {
-                    is Resource.Success -> {
-                        val stories = result.data.detail.stories
-                        if (stories.isNotEmpty()) {
-                            val favoriteNames = storyDao.getAllStories(null)
-                                .first()
-                                .filter { it.isFavourite }
-                                .map { it.uniqueName }
-
-                            val entities = stories.map { story ->
-                                story.toEntity().copy(
-                                    isFavourite = favoriteNames.contains(story.uniqueName)
-                                )
-                            }
-                            storyDao.insertAll(entities)
-                        }
-                    }
-                    is Resource.Error -> {
-                        emit(StateListWrapper(error = result.error))
-                    }
-                    is Resource.Loading -> {
-                        emit(StateListWrapper.loading())
-                    }
-                }
+    @OptIn(ExperimentalPagingApi::class)
+    override fun getStories(limit: Int, query: String?): Flow<PagingData<Story>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = limit,
+                enablePlaceholders = false,
+                prefetchDistance = 3,
+                initialLoadSize = 20
+            ),
+            remoteMediator = StoriesRemoteMediator(
+                storiesDataSource = storiesDataSource,
+                storyDao = storyDao
+            ),
+            pagingSourceFactory = {
+                storyDao.pagingSource(query)
             }
-
-            storyDao.getAllStories(query).collect { entities ->
-                emit(StateListWrapper(data = entities.map { it.toStory() }.toImmutableList()))
-            }
-        }.flowOn(Dispatchers.IO)
+        ).flow.map { pagingData ->
+            pagingData.map { entity -> entity.toStory() }
+        }
     }
 
     override suspend fun changeFavourite(uniqueName: String) {

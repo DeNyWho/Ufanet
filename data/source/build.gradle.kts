@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.data.local)
     implementation(projects.data.network)
 
+    implementation(libs.paging.runtime)
     implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
